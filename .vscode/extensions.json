@@ -1,0 +1,14 @@
+{
+  // VS Code offers to install these when you open the folder ("Install All").
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "charliermarsh.ruff",
+    "ms-toolsai.jupyter",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+    "mechatroner.rainbow-csv",
+    "eamodio.gitlens"
+  ]
+}

@@ -1,0 +1,10 @@
+# install torch/torchvision FIRST with the CUDA build for your GPU (see README)
+ultralytics>=8.4.0
+pyyaml
+pillow
+matplotlib
+numpy
+imagehash        # optional: --phash duplicate check
+onnx             # for export_model.py --format onnx
+onnxslim
+onnxruntime      # or onnxruntime-gpu

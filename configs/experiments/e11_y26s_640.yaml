@@ -1,0 +1,5 @@
+# Q: what does a newer, larger detector buy? YOLO26-s (NMS-free, edge-friendly).
+extends: _base.yaml
+name: e11_y26s_640
+model: yolo26s.pt
+train: {imgsz: 640}

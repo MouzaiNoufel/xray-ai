@@ -1,0 +1,5 @@
+# Q: was 15 epochs the bottleneck? Same model as Phase 0 Exp1, trained properly.
+extends: _base.yaml
+name: e10_v8n_640_long
+model: yolov8n.pt
+train: {imgsz: 640}

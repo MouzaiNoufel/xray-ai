@@ -1,0 +1,57 @@
+{
+  // ---- Python: use the project's .venv everywhere ----
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
+  "python.analysis.exclude": ["**/runs", "**/smoke_data", "**/.venv", "**/data"],
+
+  // ---- Lint + format on save with Ruff (rules in pyproject.toml) ----
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    },
+    "editor.rulers": [120]
+  },
+
+  // ---- Tests: Testing panel (flask icon) runs tests/ with pytest ----
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["tests"],
+
+  // ---- Every terminal can import the xray package ----
+  "terminal.integrated.env.windows": { "PYTHONPATH": "${workspaceFolder}", "PYTHONUTF8": "1" },
+  "terminal.integrated.env.linux": { "PYTHONPATH": "${workspaceFolder}" },
+  "terminal.integrated.env.osx": { "PYTHONPATH": "${workspaceFolder}" },
+
+  // ---- Keep big folders out of search, file watching and the explorer ----
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true
+  },
+  "files.watcherExclude": {
+    "**/runs/**": true,
+    "**/smoke_data/**": true,
+    "**/data/**": true,
+    "**/.venv/**": true,
+    "**/weights/**": true
+  },
+  "search.exclude": {
+    "**/runs": true,
+    "**/smoke_data": true,
+    "**/data": true,
+    "**/.venv": true,
+    "**/weights": true,
+    "**/*.json.gz": true
+  },
+
+  // ---- YAML: configs get autocompletion ----
+  "yaml.validate": true,
+  "files.associations": { "*.yaml": "yaml" },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true
+}

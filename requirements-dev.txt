@@ -1,0 +1,7 @@
+# Development tools (not needed on the deployment machine)
+-r requirements.txt
+pytest
+ruff
+pre-commit
+tensorboard     # live training curves: Ultralytics logs to runs/ automatically when installed
+ipykernel       # run notebooks in VS Code with the project's .venv

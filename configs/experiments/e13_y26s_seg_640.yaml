@@ -1,0 +1,6 @@
+# Q: does segmentation help the overlap-heavy classes (Wrench, Hammer, Pliers, Gun, Scissors)?
+# Your labels are already polygons, so this needs no new annotation.
+extends: _base.yaml
+name: e13_y26s_seg_640
+model: yolo26s-seg.pt
+train: {imgsz: 640, copy_paste: 0.3}

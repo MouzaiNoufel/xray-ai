@@ -1,0 +1,7 @@
+# Q: do real clean bags in training cut false alarms (esp. Powerbank) without losing Pd?
+# Copy the winning model/settings from e11-e14 here, then add backgrounds.
+extends: _base.yaml
+name: e20_best_bg
+model: yolo26s.pt
+use_backgrounds: true
+train: {imgsz: 640}

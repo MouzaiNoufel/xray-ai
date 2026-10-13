@@ -1,0 +1,5 @@
+# Q: is capacity the limit? Only run if e11 vs e10 showed a big jump from n -> s.
+extends: _base.yaml
+name: e14_y26m_640
+model: yolo26m.pt
+train: {imgsz: 640}

@@ -1,0 +1,7 @@
+# Q: does an extra high-resolution P2 (stride 4) head fix Lighter / Bullet?
+# This attacks small objects directly instead of upscaling the whole image.
+extends: _base.yaml
+name: e12_y26s_p2_640
+model: yolo26s-p2.yaml
+pretrained: yolo26s.pt      # transfer the backbone weights that fit
+train: {imgsz: 640}

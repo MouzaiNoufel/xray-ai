@@ -1,0 +1,29 @@
+# Shared training settings. Experiments 'extends' this and change ONE thing.
+# Any Ultralytics train argument can go under train:.
+policy: configs/policy.yaml
+train:
+  epochs: 100          # Phase 0 used 15. That was the Colab limit, not the right number.
+  patience: 25
+  batch: -1            # auto: ~60% of GPU memory. Set an int if you get OOM.
+  workers: 8           # Windows: try 4 if the dataloader is slow or crashes
+  cos_lr: true
+  close_mosaic: 10
+  seed: 0
+  deterministic: true
+  amp: true
+  cache: false         # 'ram' only if you have RAM to spare (61k images)
+  plots: true
+  # X-ray specific augmentation: scans are viewed from any side, so vertical flips are
+  # valid (unlike natural photos). Hue shifts would distort the material colour coding,
+  # which carries real meaning (orange organic / green mixed / blue metal), so keep them off.
+  flipud: 0.5
+  fliplr: 0.5
+  hsv_h: 0.0
+  hsv_s: 0.3
+  hsv_v: 0.3
+  degrees: 0.0
+  mosaic: 1.0
+  copy_paste: 0.0      # try 0.3 in a seg experiment; pastes polygons, helps overlap classes
+eval:
+  split: val
+  batch: 32

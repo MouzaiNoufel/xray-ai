@@ -1,0 +1,14 @@
+# DRAFT risk tiering. Must be validated against the real Algerian carry-on / hold
+# baggage rules by the security authority before any operational use.
+high_risk_items: [Gun, Knife, Scissors, Sprayer, Bullet]
+review_items: [Baton, HandCuffs, Hammer, Pliers, Wrench, Lighter, Powerbank]
+
+high_risk_conf: 0.60   # high-risk class at or above this -> "High Risk"
+review_conf: 0.25      # any prohibited class at or above this -> "Manual Inspection"
+
+# Per-class review thresholds. A miss on a bullet costs more than a false alarm on a
+# powerbank, so small, dangerous items can get a lower bar. Tune these from the
+# operating-point table in results/<exp>/report.md, then re-score with --from-cache.
+class_review_conf:
+  Bullet: 0.15
+  Lighter: 0.20

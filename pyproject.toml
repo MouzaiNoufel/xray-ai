@@ -1,0 +1,26 @@
+[project]
+name = "xray-ai"
+version = "0.1.0"
+description = "AI assistant for X-ray baggage screening: training, evaluation, risk policy, audit log"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["runs", "smoke_data", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+    "E402",  # scripts add the project root to sys.path before importing xray.*
+    "B905",  # zip() without strict=
+    "E501",  # long strings; the formatter already wraps code at 120
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["xray"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

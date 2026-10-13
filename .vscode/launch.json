@@ -1,0 +1,123 @@
+{
+  // Run and Debug panel (Ctrl+Shift+D) -> pick a config -> F5.
+  // Breakpoints work inside scripts/ and xray/. Set "justMyCode": false to step into Ultralytics.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: current file",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "GPU check",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/check_gpu.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Smoke test (whole pipeline, fake data)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/smoke_test.py",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Check dataset",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/check_dataset.py",
+      "args": ["--data", "${input:dataYaml}"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Train experiment",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/train.py",
+      "args": ["${input:experiment}"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Train experiment (dry run: 2 epochs, 5% data)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/train.py",
+      "args": ["${input:experiment}", "--epochs", "2", "--fraction", "0.05", "--no-eval"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Evaluate weights",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/evaluate.py",
+      "args": ["--name", "${input:resultName}", "--weights", "${input:weights}", "--imgsz", "${input:imgsz}"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Re-score from cache (after editing policy.yaml)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/evaluate.py",
+      "args": ["--name", "${input:resultName}", "--from-cache"],
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Leaderboard",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/compare.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Tests (pytest)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests", "-v"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ],
+  "inputs": [
+    {
+      "id": "experiment",
+      "type": "pickString",
+      "description": "Experiment config",
+      "options": [
+        "configs/experiments/e10_v8n_640_long.yaml",
+        "configs/experiments/e11_y26s_640.yaml",
+        "configs/experiments/e12_y26s_p2_640.yaml",
+        "configs/experiments/e13_y26s_seg_640.yaml",
+        "configs/experiments/e14_y26m_640.yaml",
+        "configs/experiments/e20_best_bg.yaml"
+      ],
+      "default": "configs/experiments/e11_y26s_640.yaml"
+    },
+    { "id": "dataYaml", "type": "promptString", "description": "Path to the dataset's data.yaml", "default": "D:/datasets/pidray/data.yaml" },
+    { "id": "resultName", "type": "promptString", "description": "Result name (folder under results/)", "default": "e00_phase0_448" },
+    { "id": "weights", "type": "promptString", "description": "Weights file", "default": "weights/best.pt" },
+    { "id": "imgsz", "type": "pickString", "description": "Image size", "options": ["448", "640", "832"], "default": "640" }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  // Terminal > Run Task... (or Ctrl+Shift+P > "Tasks: Run Task"). Uses the selected .venv interpreter.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "GPU check",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["scripts/check_gpu.py"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Smoke test (whole pipeline)",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["scripts/smoke_test.py"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Run tests",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["-m", "pytest", "tests"],
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint + format (ruff)",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["-m", "ruff", "check", "--fix", "."],
+      "problemMatcher": []
+    },
+    {
+      "label": "Train experiment",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["scripts/train.py", "${input:experiment}"],
+      "options": { "env": { "PYTHONPATH": "${workspaceFolder}" } },
+      "problemMatcher": []
+    },
+    {
+      "label": "Leaderboard",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["scripts/compare.py"],
+      "problemMatcher": []
+    },
+    {
+      "label": "TensorBoard (live training curves)",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": ["-m", "tensorboard.main", "--logdir", "runs", "--port", "6006"],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "experiment",
+      "type": "pickString",
+      "description": "Experiment config",
+      "options": [
+        "configs/experiments/e10_v8n_640_long.yaml",
+        "configs/experiments/e11_y26s_640.yaml",
+        "configs/experiments/e12_y26s_p2_640.yaml",
+        "configs/experiments/e13_y26s_seg_640.yaml",
+        "configs/experiments/e14_y26m_640.yaml",
+        "configs/experiments/e20_best_bg.yaml"
+      ],
+      "default": "configs/experiments/e11_y26s_640.yaml"
+    }
+  ]
+}
