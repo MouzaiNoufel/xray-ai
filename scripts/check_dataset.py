@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import yaml
 from PIL import Image
 
-from xray.data import SIZE_BINS, label_path_for, list_images, load_data_yaml, read_gt, resolve_split_dir, size_bin
+from xray.data import SIZE_BINS, label_path_for, list_images, load_data_yaml, read_gt, resolve_split_dirs, size_bin
 
 STEM_RE = re.compile(r"^(.*?)(?:_(?:png|jpg|jpeg|bmp))?\.rf\.[0-9a-f]+$", re.I)
 
@@ -54,34 +54,33 @@ def main():
     cfg = load_data_yaml(a.data)
     names = cfg["names"]
     print(f"classes ({len(names)}): {names}\n")
-    splits = {}
+    splits: dict[str, list[Path]] = {}
     for s in ("train", "val", "test"):
-        d = resolve_split_dir(cfg, s)
-        if d:
-            splits[s] = d
-    for s, d in splits.items():
-        print(f"{s:<5} -> {d}")
+        ds = resolve_split_dirs(cfg, s)
+        if ds:
+            splits[s] = ds
+    for s, ds in splits.items():
+        for d in ds:
+            print(f"{s:<5} -> {d}")
     if "val" not in splits:
         sys.exit("No validation split found.")
 
-    # write a clean, absolute data yaml
-    fixed = {
-        "path": "",
-        "train": str(splits["train"]),
-        "val": str(splits["val"]),
-        "names": dict(enumerate(names)),
-        "nc": len(names),
-    }
+    # write a clean, absolute data yaml (a split with several folders stays a list)
+    def as_yaml(ds):
+        return str(ds[0]) if len(ds) == 1 else [str(d) for d in ds]
+
+    fixed = {"train": as_yaml(splits["train"]), "val": as_yaml(splits["val"])}
     if "test" in splits:
-        fixed["test"] = str(splits["test"])
-    del fixed["path"]
+        fixed["test"] = as_yaml(splits["test"])
+    fixed.update({"names": dict(enumerate(names)), "nc": len(names)})
     out_yaml = Path(a.data).with_name("data_local.yaml")
-    out_yaml.write_text(yaml.safe_dump(fixed, sort_keys=False, allow_unicode=True), encoding="utf-8")
-    print(f"\nWrote {out_yaml}  <- use this in every config from now on\n")
+    if Path(a.data).name != "data_local.yaml":
+        out_yaml.write_text(yaml.safe_dump(fixed, sort_keys=False, allow_unicode=True), encoding="utf-8")
+        print(f"\nWrote {out_yaml}  <- use this in every config from now on\n")
 
     stems = {}
-    for s, d in splits.items():
-        imgs = list_images(d)
+    for s, ds in splits.items():
+        imgs = [p for d in ds for p in list_images(d)]
         stems[s] = Counter(source_stem(p) for p in imgs)
         n_bg = n_poly = n_box = 0
         cls_c, bin_c = Counter(), Counter()
@@ -119,7 +118,7 @@ def main():
         if a_ in stems and b_ in stems:
             inter = set(stems[a_]) & set(stems[b_])
             frac = len(inter) / max(1, len(stems[b_]))
-            flag = "  <-- LEAK: val/test scores are optimistic" if frac > 0.01 else "  ok"
+            flag = "  <-- possible LEAK (same file name); confirm with --phash" if frac > 0.01 else "  ok"
             print(f"  {a_} ∩ {b_}: {len(inter)} shared stems ({frac:.1%} of {b_}){flag}")
 
     if a.phash:
@@ -128,7 +127,7 @@ def main():
         except ImportError:
             sys.exit("pip install imagehash for --phash")
         print(f"\n=== Perceptual-hash near-duplicates (sample {a.phash} val vs all train hashes, distance <= 4)")
-        tr = list_images(splits["train"])
+        tr = [p for d in splits["train"] for p in list_images(d)]
         print(f"  hashing {len(tr)} train images (one-off, a few minutes)...")
         import numpy as np
 
@@ -138,7 +137,7 @@ def main():
 
         th = np.array([h64(p) for p in tr], dtype=np.uint64)
         hits = 0
-        vals = list_images(splits["val"])
+        vals = [p for d in splits["val"] for p in list_images(d)]
         for p in random.Random(1).sample(vals, min(a.phash, len(vals))):
             x = np.bitwise_xor(th, np.uint64(h64(p)))
             dist = np.unpackbits(x.view(np.uint8).reshape(-1, 8), axis=1).sum(1)

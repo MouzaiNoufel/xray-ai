@@ -66,7 +66,9 @@
         "configs/experiments/e12_y26s_p2_640.yaml",
         "configs/experiments/e13_y26s_seg_640.yaml",
         "configs/experiments/e14_y26m_640.yaml",
-        "configs/experiments/e20_best_bg.yaml"
+        "configs/experiments/e20_best_bg.yaml",
+        "configs/experiments/e30_y26s_merged.yaml",
+        "configs/experiments/e31_y26s_seg_merged.yaml"
       ],
       "default": "configs/experiments/e11_y26s_640.yaml"
     }

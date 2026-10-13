@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT))
 from PIL import Image
 
 from xray.config import load_local  # noqa: E402
-from xray.data import list_images, load_data_yaml, resolve_split_dir
+from xray.data import list_images, load_data_yaml, split_images
 from xray.policy import Policy, score_detections
 
 TIER = {"Safe": "safe", "Manual Inspection": "manual", "High Risk": "high"}
@@ -45,7 +45,7 @@ def main():
         pool = list_images(a.images)
     else:
         local = load_local()
-        pool = list_images(resolve_split_dir(load_data_yaml(local["data"]), "val"))
+        pool = split_images(load_data_yaml(local["data"]), "val")
         for cd in local.get("clean_dirs") or []:  # include real clean bags so "Safe" examples are genuine
             pool += random.Random(a.seed).sample(list_images(cd), min(30, len(list_images(cd))))
     cand = random.Random(a.seed).sample(pool, min(120, len(pool)))

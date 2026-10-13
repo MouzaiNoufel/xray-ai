@@ -25,7 +25,7 @@ def load_data_yaml(path: str | os.PathLike) -> dict:
     return cfg
 
 
-def resolve_split_dir(data_cfg: dict, split: str) -> Path | None:
+def resolve_split_dir(data_cfg: dict, split: str, raw: str | None = None) -> Path | None:
     """Find a split's image folder. Roboflow exports often write '../valid/images'
     relative paths that don't match where data.yaml really sits, so we try a bounded
     set of candidates and accept the first one that exists and has images."""
@@ -35,7 +35,8 @@ def resolve_split_dir(data_cfg: dict, split: str) -> Path | None:
         root = (yaml_dir / root).resolve()
     aliases = {"val": ["val", "valid"], "valid": ["valid", "val"], "test": ["test"], "train": ["train"]}
     cands: list[Path] = []
-    raw = data_cfg.get(split) or data_cfg.get("val" if split == "valid" else split)
+    if raw is None:
+        raw = data_cfg.get(split) or data_cfg.get("val" if split == "valid" else split)
     if isinstance(raw, str):
         for base in (root, yaml_dir):
             cands.append((base / raw).resolve())
@@ -47,6 +48,24 @@ def resolve_split_dir(data_cfg: dict, split: str) -> Path | None:
         if c.is_dir() and any(p.suffix.lower() in IMG_EXTS for p in c.iterdir()):
             return c
     return None
+
+
+def resolve_split_dirs(data_cfg: dict, split: str) -> list[Path]:
+    """Like resolve_split_dir, but a split may be a LIST of folders (merged datasets)."""
+    raw = data_cfg.get(split) or data_cfg.get("val" if split == "valid" else split)
+    if isinstance(raw, list):
+        found = [resolve_split_dir(data_cfg, split, str(r)) for r in raw]
+        missing = [r for r, f in zip(raw, found) if f is None]
+        if missing:
+            raise FileNotFoundError(f"split '{split}': folders not found or empty: {missing}")
+        return found
+    d = resolve_split_dir(data_cfg, split)
+    return [d] if d else []
+
+
+def split_images(data_cfg: dict, split: str) -> list[Path]:
+    """All images of a split, across every folder it lists."""
+    return [p for d in resolve_split_dirs(data_cfg, split) for p in list_images(d)]
 
 
 def list_images(folder: str | os.PathLike) -> list[Path]:

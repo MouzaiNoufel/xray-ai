@@ -69,7 +69,7 @@ def main():
     if a.batch is not None:
         tr["batch"] = int(a.batch) if a.batch >= 1 else a.batch
     local = load_local()
-    data = cfg.get("data") or local["data"]
+    data = cfg.get("data") or local[cfg.get("data_key", "data")]
     if cfg.get("use_backgrounds"):  # dataset variant with clean-bag backgrounds mixed into train
         data = local["data_with_backgrounds"]
     cfg.setdefault("eval", {}).setdefault("clean_dirs", local.get("clean_dirs"))

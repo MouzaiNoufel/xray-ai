@@ -1,0 +1,7 @@
+# Same as e30 with segmentation (STCray and PIDray both have masks; convert with --mode seg).
+extends: _base.yaml
+name: e31_y26s_seg_merged
+model: yolo26s-seg.pt
+data_key: data_merged
+policy: configs/policy_unified.yaml
+train: {imgsz: 640, copy_paste: 0.3}

@@ -11,12 +11,16 @@ xray-ai/
   configs/
     local.example.yaml      -> copied to local.yaml by setup: YOUR dataset paths (only file to edit per machine)
     policy.yaml             risk tiers + thresholds (Safe / Manual / High Risk), per-class overrides
+    taxonomy.yaml           unified class list + name aliases for merging datasets
+    policy_unified.yaml     risk tiers for the unified classes
     experiments/            one YAML per experiment; each changes ONE thing vs _base.yaml
   xray/                     the library: data, policy, evaluate, audit, config
   scripts/
     check_gpu.py            is the GPU visible, how fast, which models fit
     smoke_test.py           whole pipeline on fake data in ~1 min: run after any install change
     check_dataset.py        run FIRST on real data: paths, class balance, image sizes, train/val LEAK check
+    convert_coco.py         COCO JSON datasets (PIDray original, STCray, CLCXray...) -> YOLO format
+    merge_datasets.py       several datasets -> one, on configs/taxonomy.yaml's 22 unified classes
     prepare_negatives.py    clean bags -> training backgrounds + held-out Pfa set
     train.py                config-driven training, auto-resume, auto-eval
     evaluate.py             evaluate any weights; --from-cache re-scores instantly
@@ -87,6 +91,39 @@ Read the output carefully:
 * **Image sizes.** If they are around 448 px, the Roboflow export downscaled PIDray. That explains why 832 px gave nothing, and it hurts Lighter and Bullet directly. Get the **original full-resolution PIDray** (github.com/bywang2018/security-dataset). It also ships the official *easy / hard / hidden* test splits, which are the numbers papers and evaluators compare against.
 
 Then copy `configs/local.example.yaml` to `configs/local.yaml` and set `data:` to the generated `data_local.yaml`.
+
+## 3b. More data: STCray + original PIDray (recommended)
+
+The strongest open setup for an airport product is two datasets merged on one class list (`configs/taxonomy.yaml`, 22 classes):
+
+| Dataset | Why | Get it |
+|---|---|---|
+| **STCray** (2025) | Real airport scanner (ANER K8065), 46,642 scans, 21 threat classes incl. explosives, 3D-printed guns, syringes, batteries, screwdrivers; boxes + masks; Apache-2.0 on its card | huggingface.co/datasets/Naoufel555/STCray-Dataset (log in, accept terms, ~24 GB) |
+| **PIDray original** | 47,677 images at full resolution, masks, official easy/hard/hidden test sets | github.com/bywang2018/security-dataset (academic use only) |
+| SIXray negatives | ~1M clean bags for Pfa (step 6) | github.com/MeioJane/SIXray (academic use only) |
+
+```powershell
+# 1. Convert each to YOLO (COCO JSON in -> YOLO seg labels out). Check the real file names after download.
+python scripts/convert_coco.py --out D:/datasets/yolo/pidray --mode seg `
+    --split train D:/datasets/pidray/annotations/xray_train.json D:/datasets/pidray/train `
+    --split val   D:/datasets/pidray/annotations/xray_test_hard.json D:/datasets/pidray/hard
+# (same for STCray; if its annotations are not COCO JSON, inspect one file and adapt)
+
+# 2. Merge on the unified classes; also writes data_val_<source>.yaml for per-scanner evaluation
+python scripts/merge_datasets.py --out D:/datasets/merged `
+    --source stcray D:/datasets/yolo/stcray/data.yaml --source pidray D:/datasets/yolo/pidray/data.yaml
+
+# 3. Check, set data_merged in configs/local.yaml, train
+python scripts/check_dataset.py --data D:/datasets/merged/data.yaml
+python scripts/train.py configs/experiments/e30_y26s_merged.yaml
+```
+
+Merged experiments use `configs/policy_unified.yaml`. Unlabelled images in the eval split (STCray's ~950 clean scans)
+are counted as clean bags automatically, so Pfa gets a first real-airport estimate even before SIXray.
+
+**Licensing:** PIDray, SIXray, HiXray, CLCXray and OPIXray are academic-use only. Use them for research and demos.
+The model you SELL must be trained on data you have rights to: STCray (verify its terms with the authors in writing)
+plus your own Phase 1 data.
 
 ## 4. Re-establish the baseline (no training)
 

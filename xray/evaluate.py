@@ -28,7 +28,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
-from .data import SIZE_BINS, iou, list_images, load_data_yaml, read_gt, resolve_split_dir, size_bin
+from .data import SIZE_BINS, iou, list_images, load_data_yaml, read_gt, resolve_split_dirs, size_bin
 from .policy import SAFE, Policy, score_detections
 
 IOU_MATCH = 0.3
@@ -113,7 +113,16 @@ def _match(gts: list[dict], preds: list, t: float):
 
 def compute_metrics(threat: list[dict], clean: list[dict], policy: Policy) -> dict:
     prohibited = policy.prohibited
-    m: dict = {"n_threat_images": len(threat), "n_clean_images": len(clean), "sweep": {}}
+    # images in the eval split with no labels at all are clean bags too (e.g. STCray's
+    # non-threat scans, or merged images whose only objects were non-threat classes)
+    in_split_clean = [r for r in threat if not r["gt"]]
+    clean = list(clean) + in_split_clean
+    m: dict = {
+        "n_threat_images": len(threat),
+        "n_clean_images": len(clean),
+        "n_clean_from_split": len(in_split_clean),
+        "sweep": {},
+    }
     threat_bags = [r for r in threat if any(g["cls"] in prohibited for g in r["gt"])]
     m["n_threat_bags"] = len(threat_bags)
     m["n_images_without_threat_labels"] = len(threat) - len(threat_bags)
@@ -230,12 +239,12 @@ def evaluate(
         from ultralytics import YOLO
 
         model = YOLO(weights)
-        split_dir = resolve_split_dir(data, split)
-        assert split_dir, f"Could not find images for split '{split}' from {data_yaml}"
-        imgs = list_images(split_dir)
+        split_dirs = resolve_split_dirs(data, split)
+        assert split_dirs, f"Could not find images for split '{split}' from {data_yaml}"
+        imgs = [p for d in split_dirs for p in list_images(d)]
         if limit:
             imgs = imgs[:limit]
-        print(f"[1/4] threat set: {len(imgs)} images from {split_dir}")
+        print(f"[1/4] eval set: {len(imgs)} images from {len(split_dirs)} folder(s)")
         preds = _predict(model, imgs, imgsz, conf_floor, batch, device, half)
         threat = []
         for p, d in zip(imgs, preds):

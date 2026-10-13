@@ -1,0 +1,9 @@
+# Q: does training on STCray + PIDray together (22 unified classes, two scanners) beat
+# PIDray alone, and how big is the gap between the two scanners? Evaluate per source too:
+#   python scripts/evaluate.py --name e30_on_stcray --weights weights/e30_y26s_merged.pt --data <merged>/data_val_stcray.yaml --policy configs/policy_unified.yaml
+extends: _base.yaml
+name: e30_y26s_merged
+model: yolo26s.pt
+data_key: data_merged          # key in configs/local.yaml
+policy: configs/policy_unified.yaml
+train: {imgsz: 640}

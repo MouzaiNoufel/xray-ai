@@ -1,0 +1,14 @@
+# DRAFT risk tiering for the unified class list (configs/taxonomy.yaml), used by the
+# merged-dataset experiments (e30+). Must be validated against real Algerian rules.
+high_risk_items: [Gun, 3D_Printed_Gun, Bullet, Explosive, Knife, Cutter, Blade, Scissors, Sprayer, Syringe]
+review_items: [Razor, Nail_Cutter, Other_Sharp, Lighter, Battery, Powerbank, Hammer, Pliers, Wrench,
+               Screwdriver, Handcuffs, Baton]
+
+high_risk_conf: 0.60
+review_conf: 0.25
+
+class_review_conf:
+  Bullet: 0.15
+  Explosive: 0.10      # never let a weak explosive signal pass silently
+  Blade: 0.15
+  Lighter: 0.20

@@ -1,0 +1,55 @@
+# One class list for all datasets. merge_datasets.py maps every source dataset's class
+# names onto these. Matching ignores case, spaces, '_' and '-'. A source class that is not
+# listed in aliases (laptop, water bottle, umbrella...) is dropped from the labels; images
+# left with no threat become clean backgrounds, which also teaches the model what NOT to flag.
+classes:
+  - Gun
+  - 3D_Printed_Gun
+  - Bullet
+  - Explosive
+  - Knife
+  - Cutter
+  - Blade
+  - Razor
+  - Scissors
+  - Nail_Cutter
+  - Other_Sharp
+  - Syringe
+  - Lighter
+  - Battery
+  - Powerbank
+  - Hammer
+  - Pliers
+  - Wrench
+  - Screwdriver
+  - Handcuffs
+  - Baton
+  - Sprayer
+
+# extra source names -> unified class (exact class names above match automatically)
+aliases:
+  3dprintedgun: 3D_Printed_Gun
+  3dgun: 3D_Printed_Gun
+  pistol: Gun
+  firearm: Gun
+  ammunition: Bullet
+  ammo: Bullet
+  dagger: Knife
+  foldingknife: Knife
+  straightknife: Knife
+  multitoolknife: Knife
+  swissarmyknife: Knife
+  utilityknife: Cutter
+  boxcutter: Cutter
+  shavingrazor: Razor
+  nailcutter: Nail_Cutter
+  othersharpitem: Other_Sharp
+  othersharpitems: Other_Sharp
+  nonmetalliclighter: Lighter
+  portablecharger1: Powerbank
+  portablecharger2: Powerbank
+  portablecharger: Powerbank
+  powerbank: Powerbank
+  spraycans: Sprayer
+  spray: Sprayer
+  handcuff: Handcuffs

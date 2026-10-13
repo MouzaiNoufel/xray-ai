@@ -7,6 +7,9 @@ data: D:/datasets/pidray/data_local.yaml
 # Written by scripts/prepare_negatives.py (same val set, clean bags added to train)
 data_with_backgrounds: D:/datasets/pidray/data_with_bg.yaml
 
+# Written by scripts/merge_datasets.py (STCray + PIDray on the unified classes), used by e30+
+data_merged: D:/datasets/merged/data.yaml
+
 # Held-out clean bags for Pfa. NEVER the same images used as training backgrounds.
 clean_dirs:
   - D:/datasets/negatives/clean_eval

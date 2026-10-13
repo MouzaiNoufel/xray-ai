@@ -32,7 +32,7 @@ def main():
 
     from ultralytics import YOLO
 
-    from xray.data import list_images, load_data_yaml, resolve_split_dir
+    from xray.data import load_data_yaml, split_images
 
     src = YOLO(a.weights)
     out = src.export(
@@ -41,7 +41,7 @@ def main():
     print(f"exported -> {out}")
     if a.check:
         local = load_local()
-        imgs = [str(p) for p in list_images(resolve_split_dir(load_data_yaml(local["data"]), "val"))[: a.check]]
+        imgs = [str(p) for p in split_images(load_data_yaml(local["data"]), "val")[: a.check]]
         exp = YOLO(out, task=src.task)
         bad = 0
         for p in imgs:
